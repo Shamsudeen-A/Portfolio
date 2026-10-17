@@ -649,7 +649,10 @@ export default function Home() {
       <div className="night-sky" aria-hidden="true">
         {/* Day Mode Architectural Skylight Live Parallax Background (Base layer when revealing) */}
         <div className="day-skylight-wrapper">
-          <div className="day-skylight-bg" />
+          <div
+            className="day-skylight-bg"
+            style={{ backgroundImage: `url(${basePath}/skylight-atrium-bg.jpg)` }}
+          />
 
           {/* Elegant 3D Floating Glass Geometric Plates / Prisms */}
           <div className="day-prism day-prism-1" />
