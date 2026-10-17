@@ -91,15 +91,15 @@ const navLinks = [
 
 const profile = {
   name: "Shamsudeen",
-  shortName: "SD",
-  role: "Aspiring Software Developer | Web Developer & Data Analyst",
-  badge: "Open for Software Developer, Web Developer & Data Analyst Roles",
+  shortName: "SAM",
+  role: "Aspiring Software Developer | Web Developer",
+  badge: "Open for Software Developer & Web Developer Roles",
   summary:
-    "Data Analyst with 3.5 years of professional data operations & analytics experience, actively expanding into Software & Web Development with 1+ year of hands-on self-built modern web projects.",
+    "Process Associate with 3.5 years of professional data operations & analytics experience, actively expanding into Software & Web Development with 1+ year of hands-on self-built modern web projects.",
   techLine: "Next.js | React.js | TypeScript | Tailwind CSS | SQL | Python | Power BI",
   email: "abushamsudeen667@gmail.com",
   linkedin: "https://www.linkedin.com/in/samsuuuuuu",
-  github: "https://github.com/",
+  github: "https://github.com/Shamsudeen-A",
   location: "Open for Opportunities / Relocation"
 };
 
@@ -173,15 +173,9 @@ const analyticsApproach = [
 const education = [
   {
     degree: "B.Tech - Information Technology",
-    institution: "Engineering background",
-    period: "Completed",
-    note: "Supports analytics, systems thinking, and technical problem solving."
-  },
-  {
-    degree: "Python Programming",
-    institution: "QSpiders",
-    period: "2025",
-    note: "Core Python, OOP, file handling, exceptions, and automation basics."
+    institution: "Mohamed Sathak A.J. College of Engineering",
+    period: "2018 – 2022",
+    note: "Engineering foundation, analytical systems thinking, and technical problem solving."
   }
 ];
 
@@ -198,12 +192,10 @@ function SettingsPanel({
   setColorScheme: (scheme: ColorScheme) => void;
   onOpenChange?: (open: boolean) => void;
 }) {
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const closeAll = useCallback(() => {
-    setSettingsOpen(false);
+  const closePalette = useCallback(() => {
     setPaletteOpen(false);
     onOpenChange?.(false);
   }, [onOpenChange]);
@@ -211,53 +203,42 @@ function SettingsPanel({
   useEffect(() => {
     const handleClick = (event: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        closeAll();
+        closePalette();
       }
     };
 
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [closeAll]);
+  }, [closePalette]);
 
   return (
-    <div ref={panelRef} className="settings-panel">
+    <div ref={panelRef} className="premium-controls-switch">
+      {/* 1. Direct Theme Toggle (Day / Night Mode) */}
       <button
-        className="nav-icon-button"
-        aria-label="Open settings"
-        title="Settings"
+        className="nav-icon-button premium-theme-btn"
+        aria-label={theme === "dark" ? "Switch to Day Mode" : "Switch to Night Mode"}
+        title={theme === "dark" ? "Switch to Day Mode" : "Switch to Night Mode"}
+        onClick={toggleTheme}
+      >
+        {theme === "dark" ? <Sun size={18} className="theme-icon-sun" /> : <Moon size={18} className="theme-icon-moon" />}
+      </button>
+
+      {/* 2. Direct Color Palette Selector */}
+      <button
+        className={`nav-icon-button premium-palette-btn ${paletteOpen ? "is-active" : ""}`}
+        aria-label="Color Palette"
+        title="Color Schemes"
         onClick={() => {
-          const next = !settingsOpen;
-          setSettingsOpen(next);
-          setPaletteOpen(false);
+          const next = !paletteOpen;
+          setPaletteOpen(next);
           onOpenChange?.(next);
         }}
       >
-        <Settings size={18} className={settingsOpen ? "spin-icon" : ""} />
+        <Palette size={18} />
         {colorScheme !== "default" && <span className="active-color-dot" />}
       </button>
 
-      <div className={`settings-actions ${settingsOpen ? "is-open" : ""}`}>
-        <button
-          className="nav-icon-button"
-          aria-label="Toggle theme"
-          title="Toggle theme"
-          onClick={() => {
-            toggleTheme();
-            closeAll();
-          }}
-        >
-          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-        <button
-          className="nav-icon-button"
-          aria-label="Choose color scheme"
-          title="Color scheme"
-          onClick={() => setPaletteOpen((value) => !value)}
-        >
-          <Palette size={18} />
-        </button>
-      </div>
-
+      {/* Color Schemes Dropdown Menu */}
       {paletteOpen && (
         <div className="palette-menu" data-scroll-allow>
           <span className="palette-title">Color Scheme</span>
@@ -267,7 +248,7 @@ function SettingsPanel({
               className={`palette-option ${scheme.id === colorScheme ? "is-selected" : ""}`}
               onClick={() => {
                 setColorScheme(scheme.id);
-                closeAll();
+                closePalette();
               }}
             >
               <span className="palette-swatches">
@@ -285,72 +266,73 @@ function SettingsPanel({
 }
 
 function CustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
-  const trailRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const pointerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
       return;
     }
 
-    const dot = dotRef.current;
-    const glow = glowRef.current;
-    if (!dot || !glow) return;
+    const pointer = pointerRef.current;
+    if (!pointer) return;
 
-    const moveDotX = gsap.quickTo(dot, "x", { duration: 0.02, ease: "none" });
-    const moveDotY = gsap.quickTo(dot, "y", { duration: 0.02, ease: "none" });
-    const moveGlowX = gsap.quickTo(glow, "x", { duration: 0.12, ease: "power2.out" });
-    const moveGlowY = gsap.quickTo(glow, "y", { duration: 0.12, ease: "power2.out" });
-    const trailTweens = trailRefs.current
-      .filter((element): element is HTMLSpanElement => Boolean(element))
-      .map((element, index) => ({
-        x: gsap.quickTo(element, "x", { duration: 0.06 + index * 0.02, ease: "power2.out" }),
-        y: gsap.quickTo(element, "y", { duration: 0.06 + index * 0.02, ease: "power2.out" })
-      }));
-
+    // Direct 1:1 hardware-accelerated instant tracking with zero lag
     const onMove = (event: MouseEvent) => {
-      moveDotX(event.clientX);
-      moveDotY(event.clientY);
-      moveGlowX(event.clientX);
-      moveGlowY(event.clientY);
-      trailTweens.forEach((tween) => {
-        tween.x(event.clientX);
-        tween.y(event.clientY);
-      });
+      pointer.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
     };
 
-    const onEnter = () => glowRef.current?.classList.add("is-hovering");
-    const onLeave = () => glowRef.current?.classList.remove("is-hovering");
+    window.addEventListener("pointermove", onMove, { passive: true });
 
-    window.addEventListener("mousemove", onMove);
-    document.querySelectorAll("a, button, input, textarea").forEach((element) => {
-      element.addEventListener("mouseenter", onEnter);
-      element.addEventListener("mouseleave", onLeave);
-    });
+    const onPointerOver = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target && target.closest("a, button, input, textarea, [role='button']")) {
+        pointer.classList.add("is-hovering");
+      } else {
+        pointer.classList.remove("is-hovering");
+      }
+    };
+
+    document.addEventListener("pointerover", onPointerOver, { passive: true });
 
     return () => {
-      window.removeEventListener("mousemove", onMove);
-      document.querySelectorAll("a, button, input, textarea").forEach((element) => {
-        element.removeEventListener("mouseenter", onEnter);
-        element.removeEventListener("mouseleave", onLeave);
-      });
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerover", onPointerOver);
     };
   }, []);
 
   return (
-    <>
-      <div ref={glowRef} className="custom-cursor-glow" />
-      <div ref={dotRef} className="custom-cursor-dot" />
-      <span ref={(element) => { trailRefs.current[0] = element; }} className="custom-cursor-trail trail-one" />
-      <span ref={(element) => { trailRefs.current[1] = element; }} className="custom-cursor-trail trail-two" />
-      <span ref={(element) => { trailRefs.current[2] = element; }} className="custom-cursor-trail trail-three" />
-    </>
+    <div ref={pointerRef} className="custom-cursor-pointer">
+      <svg
+        width="26"
+        height="26"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="cursor-svg"
+      >
+        {/* Cyber Red Cursor Arrow with neon outline and dark body */}
+        <path
+          d="M3 3L10.5 21L13.8 13.8L21 10.5L3 3Z"
+          fill="#120404"
+          stroke="#ef4444"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        <path
+          d="M6 7L11 12"
+          stroke="#ff6b6b"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
   );
 }
 
 export default function Home() {
   const [theme, setTheme] = useState<Theme>("dark");
+  const [transitioning, setTransitioning] = useState<"to-light" | null>(null);
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>("default");
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -421,35 +403,54 @@ export default function Home() {
 
   useEffect(() => {
     const root = document.documentElement;
+    if (transitioning === "to-light") {
+      root.classList.add("is-sunrise-transitioning");
+    } else {
+      root.classList.remove("is-sunrise-transitioning");
+    }
+  }, [transitioning]);
+
+  useEffect(() => {
+    const root = document.documentElement;
     colorSchemes.forEach((scheme) => root.classList.remove(`scheme-${scheme.id}`));
     root.classList.add(`scheme-${colorScheme}`);
     window.localStorage.setItem("portfolio-color-scheme", colorScheme);
   }, [colorScheme]);
 
   useEffect(() => {
-    let frame = 0;
+    let animId = 0;
+    let targetProgress = 0;
+    let currentProgress = 0;
 
-    const updateSceneProgress = () => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        const root = document.documentElement;
-        const maxScroll = Math.max(window.innerHeight * 2.4, 1);
-        const progress = Math.min(window.scrollY / maxScroll, 1);
-        root.style.setProperty("--scene-progress", progress.toFixed(4));
-        root.style.setProperty("--scene-scale", (1.04 + progress * 0.18).toFixed(4));
-        root.style.setProperty("--scene-y", `${Math.round(progress * -56)}px`);
-        root.style.setProperty("--scene-brightness", (0.82 + progress * 0.13).toFixed(3));
-      });
+    const onScroll = () => {
+      const totalHeight = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+      targetProgress = Math.min(Math.max(window.scrollY / totalHeight, 0), 1);
     };
 
-    updateSceneProgress();
-    window.addEventListener("scroll", updateSceneProgress, { passive: true });
-    window.addEventListener("resize", updateSceneProgress);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    // Buttery-smooth lerp loop (60fps/120fps continuous interpolation)
+    const renderLoop = () => {
+      // 0.08 linear interpolation factor produces buttery, liquid-smooth cinematic motion like Milky Way
+      currentProgress += (targetProgress - currentProgress) * 0.08;
+
+      const root = document.documentElement;
+      root.style.setProperty("--scene-progress", currentProgress.toFixed(4));
+      root.style.setProperty("--scene-scale", (1.04 + currentProgress * 0.52).toFixed(4));
+      root.style.setProperty("--scene-y", `${(currentProgress * -220).toFixed(1)}px`);
+      root.style.setProperty("--scene-brightness", (0.85 + currentProgress * 0.15).toFixed(3));
+
+      animId = window.requestAnimationFrame(renderLoop);
+    };
+
+    animId = window.requestAnimationFrame(renderLoop);
 
     return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", updateSceneProgress);
-      window.removeEventListener("resize", updateSceneProgress);
+      window.cancelAnimationFrame(animId);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, []);
 
@@ -581,7 +582,23 @@ export default function Home() {
     };
   }, [mobileOpen, mobileSettingsOpen]);
 
-  const toggleTheme = () => setTheme((value) => (value === "dark" ? "light" : "dark"));
+  const toggleTheme = () => {
+    if (transitioning) return; // Prevent spam clicking during transition
+    const nextTheme: Theme = theme === "dark" ? "light" : "dark";
+
+    if (nextTheme === "light") {
+      // Day Mode Transition: Sun glides to corner in 0.9s, then shade fades out as a smooth gradient into day wallpaper (1.4s total)
+      setTheme("light");
+      setTransitioning("to-light");
+
+      window.setTimeout(() => {
+        setTransitioning(null);
+      }, 1400);
+    } else {
+      // Night Mode Transition: Original smooth natural galaxy cross-fade (no moonrise animation)
+      setTheme("dark");
+    }
+  };
 
   const handleProjectMove = useCallback((event: ReactMouseEvent<HTMLElement>) => {
     const card = event.currentTarget;
@@ -630,13 +647,57 @@ export default function Home() {
       <CustomCursor />
 
       <div className="night-sky" aria-hidden="true">
-        <NightSky />
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="orb-1 absolute top-1/4 left-1/4 w-[250px] h-[250px] sm:w-[500px] sm:h-[500px] rounded-full bg-primary/10 blur-[60px] sm:blur-[120px]" />
-          <div className="orb-2 absolute bottom-1/4 right-1/4 w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] rounded-full bg-accent/10 blur-[50px] sm:blur-[100px]" />
-          <div className="orb-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] rounded-full bg-purple-500/5 blur-[70px] sm:blur-[140px]" />
+        {/* Day Mode Architectural Skylight Live Parallax Background (Base layer when revealing) */}
+        <div className="day-skylight-wrapper">
+          <div className="day-skylight-bg" />
+
+          {/* Elegant 3D Floating Glass Geometric Plates / Prisms */}
+          <div className="day-prism day-prism-1" />
+          <div className="day-prism day-prism-2" />
+          <div className="day-prism day-prism-3" />
+          <div className="day-prism day-prism-4" />
+          <div className="day-prism day-prism-5" />
+          <div className="day-prism day-prism-6" />
+          <div className="day-prism day-prism-7" />
+
+          <div className="day-soft-vignette" />
         </div>
-        <div className="sky-vignette" />
+
+        {/* Dark Mode Galaxy Background */}
+        <div className="dark-sky-wrapper">
+          <NightSky />
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="orb-1 absolute top-1/4 left-1/4 w-[250px] h-[250px] sm:w-[500px] sm:h-[500px] rounded-full bg-primary/10 blur-[60px] sm:blur-[120px]" />
+            <div className="orb-2 absolute bottom-1/4 right-1/4 w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] rounded-full bg-accent/10 blur-[50px] sm:blur-[100px]" />
+            <div className="orb-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] rounded-full bg-purple-500/5 blur-[70px] sm:blur-[140px]" />
+          </div>
+          <div className="sky-vignette" />
+        </div>
+
+        {/* Celestial Physics-Based Realistic Transition Overlay */}
+        {transitioning && (
+          <div className={`celestial-transition-curtain ${transitioning}`} aria-hidden="true">
+            {transitioning === "to-light" ? (
+              /* Realistic 3D Golden Sunrise Orb & Dawn Horizon Wave */
+              <div className="sunrise-stage">
+                <div className="sunrise-dawn-wave" />
+                <div className="sunrise-sun-orb">
+                  <div className="sun-corona" />
+                  <div className="sun-core" />
+                </div>
+              </div>
+            ) : (
+              /* Realistic 3D Crescent Moon & Gravitational Dark Wave */
+              <div className="moonrise-stage">
+                <div className="moonrise-dark-wave" />
+                <div className="moonrise-moon-orb">
+                  <div className="moon-silver-rim" />
+                  <div className="moon-lunar-crescent" />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <nav className={`site-nav ${scrolled ? "is-scrolled" : ""}`}>
@@ -702,6 +763,7 @@ export default function Home() {
           </p>
           <h1 className="hero-title">
             <span>Hi, I&apos;m </span>
+            {" "}
             <span className="hero-name-gradient">{profile.name}</span>
           </h1>
           <p className="hero-role">{profile.role}</p>
@@ -709,15 +771,18 @@ export default function Home() {
           <p className="hero-techline">{profile.techLine}</p>
 
           <div className="hero-actions">
-            <a className="button primary" href="#projects">
+            <a className="button primary btn-glitter-fx" href="#projects">
+              <span className="btn-shimmer-sweep" />
               <ArrowRight size={19} />
               View Projects
             </a>
-            <a className="button outline" href={resumeHref} target="_blank" rel="noreferrer">
+            <a className="button outline btn-glitter-fx" href={resumeHref} target="_blank" rel="noreferrer">
+              <span className="btn-shimmer-sweep" />
               <Download size={19} />
               View Resume
             </a>
-            <a className="button outline" href="#contact">
+            <a className="button outline btn-glitter-fx" href="#contact">
+              <span className="btn-shimmer-sweep" />
               Contact Me
             </a>
           </div>
@@ -753,12 +818,12 @@ export default function Home() {
         <div className="about-layout">
           <article className="about-card glass-card hover-glow reveal">
             <p>
-              I am a <strong>Data Analyst with 3.5 years of industry experience</strong> in healthcare operations,
-              SLA reporting, reconciliation accuracy, and dashboard automation. Alongside my data background,
+              I am a <strong>Process Associate with 3.5 years of industry experience</strong> in healthcare operations,
+              SLA reporting, reconciliation accuracy, and dashboard automation. Alongside my operational background,
               I am an <strong>Aspiring Software Developer / Web Developer</strong> with <strong>1+ year of intensive self-directed learning</strong> and real-world project building.
             </p>
             <p>
-              Through self-driven development, I have engineered full-stack web applications including <strong>TradingPilot AI</strong> (algorithmic trading signals and AI copilot) and <strong>zamss.in</strong> (dropshipping e-commerce platform). I combine strong analytical problem-solving with modern frontend web technologies like React.js, Next.js, and TypeScript.
+              Through self-driven development, I have engineered full-stack web applications including <strong>TradingPilot AI</strong> (algorithmic trading signals) and <strong>Zamss.in</strong> (dropshipping e-commerce platform). I combine strong analytical problem-solving with modern frontend web technologies like React.js, Next.js, and TypeScript.
             </p>
             <div className="chip-row">
               {["Next.js", "React.js", "TypeScript", "Tailwind CSS", "SQL", "Python", "Power BI", "Advanced Excel"].map((item) => (
@@ -988,7 +1053,19 @@ export default function Home() {
               <p className="text-primary">{cert.provider}</p>
               <div>
                 <span>{cert.date}</span>
-                <small>Certification and learning signal for analytics roles.</small>
+                {cert.link ? (
+                  <a
+                    href={cert.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary underline underline-offset-4 hover:opacity-80 transition-opacity"
+                    style={{ marginTop: "4px" }}
+                  >
+                    View Certificate <ExternalLink size={13} />
+                  </a>
+                ) : (
+                  <small>Certification and learning signal for developer roles.</small>
+                )}
               </div>
             </article>
           ))}

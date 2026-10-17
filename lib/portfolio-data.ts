@@ -133,7 +133,7 @@ export const projectGroups: ProjectGroup[] = [
         ]
       },
       {
-        title: "zamss.in - Dropshipping E-Commerce Platform",
+        title: "Zamss.in - Dropshipping E-Commerce Platform",
         status: "Production Ready",
         stack: "React.js, Next.js, Tailwind CSS, REST APIs, Payment Gateway",
         summary:
@@ -234,13 +234,20 @@ export const projectGroups: ProjectGroup[] = [
 
 export const certifications = [
   {
-    title: "Data Science Bootcamp",
-    provider: "Udemy | Statistics, Pandas, NumPy, Matplotlib, Seaborn, ML basics",
-    date: "In progress, 2025"
+    title: "Core Java",
+    provider: "QSpiders | Core Java, OOP, Collections, Multi-threading, Exception Handling",
+    date: "Completed",
+    link: "https://drive.google.com/file/d/1l7XwQdN5Hx8Q8UPSXkZlDJqS5xIOZlJo/view?usp=drive_link"
   },
   {
     title: "Python Programming",
     provider: "QSpiders | Core Python, OOP, file handling, exceptions, automation basics",
-    date: "2025"
+    date: "2025",
+    link: "https://drive.google.com/file/d/1qDOuC8J9uKB8l0BGC60oMZ0IQd56mB_p/view?usp=drive_link"
+  },
+  {
+    title: "Data Science Bootcamp",
+    provider: "Udemy | Statistics, Pandas, NumPy, Matplotlib, Seaborn, ML basics",
+    date: "In progress, 2025"
   }
 ];

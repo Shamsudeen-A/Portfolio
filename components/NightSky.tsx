@@ -95,13 +95,13 @@ function initMWBand(): { blobs: MWBlob[]; microStars: MWStar[] } {
   const blobScale = mobile ? 0.4 : 1;
 
   const layers: { colors: RGB[]; bSpread: number; alpha: number; count: number; angScale: number }[] = [
-    { colors: [[100, 130, 200], [80, 110, 185], [120, 145, 210]], bSpread: 18, alpha: 0.14, count: 220, angScale: 14 },
-    { colors: [[160, 100, 200], [140, 80, 180], [180, 120, 220], [130, 90, 170]], bSpread: 12, alpha: 0.15, count: 230, angScale: 11 },
-    { colors: [[200, 160, 90], [180, 140, 70], [210, 170, 100], [190, 150, 80]], bSpread: 6, alpha: 0.17, count: 200, angScale: 9 },
-    { colors: [[240, 220, 170], [255, 240, 200], [230, 210, 160]], bSpread: 4, alpha: 0.20, count: 160, angScale: 7 },
-    { colors: [[220, 80, 80], [200, 60, 90], [240, 100, 100], [180, 50, 70]], bSpread: 9, alpha: 0.10, count: 100, angScale: 9 },
-    { colors: [[80, 180, 200], [60, 160, 190], [100, 200, 210]], bSpread: 10, alpha: 0.09, count: 80, angScale: 9 },
-    { colors: [[240, 240, 255], [255, 255, 255], [220, 225, 245]], bSpread: 4, alpha: 0.19, count: 120, angScale: 6 },
+    { colors: [[100, 130, 200], [80, 110, 185], [120, 145, 210]], bSpread: 18, alpha: 0.16, count: 70, angScale: 15 },
+    { colors: [[160, 100, 200], [140, 80, 180], [180, 120, 220], [130, 90, 170]], bSpread: 12, alpha: 0.17, count: 75, angScale: 12 },
+    { colors: [[200, 160, 90], [180, 140, 70], [210, 170, 100], [190, 150, 80]], bSpread: 6, alpha: 0.19, count: 65, angScale: 10 },
+    { colors: [[240, 220, 170], [255, 240, 200], [230, 210, 160]], bSpread: 4, alpha: 0.22, count: 55, angScale: 8 },
+    { colors: [[220, 80, 80], [200, 60, 90], [240, 100, 100], [180, 50, 70]], bSpread: 9, alpha: 0.12, count: 35, angScale: 10 },
+    { colors: [[80, 180, 200], [60, 160, 190], [100, 200, 210]], bSpread: 10, alpha: 0.11, count: 30, angScale: 10 },
+    { colors: [[240, 240, 255], [255, 255, 255], [220, 225, 245]], bSpread: 4, alpha: 0.21, count: 45, angScale: 7 },
   ];
 
   for (const layer of layers) {
@@ -128,7 +128,7 @@ function initMWBand(): { blobs: MWBlob[]; microStars: MWStar[] } {
     }
   }
 
-  const microStarCount = isMobileDevice() ? 1500 : 5000;
+  const microStarCount = isMobileDevice() ? 800 : 1600;
   for (let i = 0; i < microStarCount; i++) {
     const u = rand(0, 1);
     const l = u < 0.5
@@ -422,6 +422,7 @@ export default function NightSky() {
   const moonRef = useRef<{ ra: number; dec: number; phase: number; isWaxing: boolean } | null>(null);
   const cloudsRef = useRef<Cloud[]>([]);
   const prevScrollFracRef = useRef(0);
+  const smoothScrollFracRef = useRef(0);
   const cinematicOffsetRef = useRef(0);
   const cinematicStartRef = useRef(0);
 
@@ -587,21 +588,15 @@ export default function NightSky() {
       if (!moon) return;
       const mr = 13; // Crisp, perfectly-proportioned realistic size like astronomical sky
 
-      // Atmospheric soft outer glow
+      // Atmosphere soft outer glow
       const glowR = mr * 4.5;
       const glow = ctx.createRadialGradient(mx, my, mr * 0.8, mx, my, glowR);
-      glow.addColorStop(0, "rgba(255, 250, 240, 0.18)");
-      glow.addColorStop(0.35, "rgba(230, 240, 255, 0.05)");
+      glow.addColorStop(0, "rgba(255, 250, 240, 0.22)");
+      glow.addColorStop(0.35, "rgba(230, 240, 255, 0.06)");
       glow.addColorStop(1, "rgba(200, 220, 255, 0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
       ctx.arc(mx, my, glowR, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Dark side of moon (faint unlit celestial body disk)
-      ctx.fillStyle = "rgba(22, 26, 36, 0.90)";
-      ctx.beginPath();
-      ctx.arc(mx, my, mr, 0, Math.PI * 2);
       ctx.fill();
 
       if (moon.phase < 0.01) return;
@@ -1138,7 +1133,12 @@ export default function NightSky() {
 
       const scrollY = window.scrollY;
       const scrollMax = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const scrollFrac = Math.min(1, scrollY / scrollMax);
+      const rawScrollFrac = Math.min(1, Math.max(0, scrollY / scrollMax));
+
+      // Butter-smooth damping interpolation (lerp) for the galaxy background
+      // This produces a gentle, luxurious floating parallax glide without any jerking
+      smoothScrollFracRef.current += (rawScrollFrac - smoothScrollFracRef.current) * 0.055;
+      const scrollFrac = smoothScrollFracRef.current;
 
       /* Cinematic sky sweep: virtual offset decays from initial value to 0 */
       if (cinematicOffsetRef.current > 0.001) {
